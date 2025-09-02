@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Monitor Framework 2.0 - Enhanced Universal Edition
 
 **A next-generation modular, real-time monitoring and control framework** that supports both web and desktop deployment. Built with React frontend and Node.js backend, featuring enhanced WebSocket real-time communication, universal database support (MySQL/Firestore/Hybrid), and a highly modular architecture for easy integration into any project.
@@ -1077,6 +1076,3 @@ npm start
 ---
 
 *Built with ❤️ for developers who believe monitoring should be powerful, flexible, and actually enjoyable to work with.*
-=======
-# HERE GOES NOTHING
->>>>>>> bc72d0564ea1c331bd71e3879209c3c029c9b080
