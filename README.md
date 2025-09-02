@@ -24,6 +24,8 @@ A modular monitoring system built for reliability and maintainability:
 - **🛡️ Built-in Security**: Authentication system with JWT tokens and data encryption
 - **📡 Cross-platform Compatibility**: Works on Windows, macOS, and Linux
 - **🔧 Developer Friendly**: Hot reloading, linting, and comprehensive error handling
+- **🎨 Alert System**: Colorful console logging and structured event management
+- **📚 Complete Documentation**: Comprehensive guides for all core libraries in `/lib/doc/`
 
 ## 🏗️ Architecture Overview
 
@@ -76,17 +78,23 @@ monitor-framework/
 │
 ├── 📂 lib/                            # 🏗️ Core Framework Libraries
 │   ├── 📂 db/                         # 💾 Database Abstraction Layer
-│   │   ├── 🗄️ mysqlDB.js             # 🐬 MySQL database handler
-│   │   ├── 🔥 firebaseDB.js          # 🔥 Firebase handler
-│   │   └── 🔧 databaseAdapter.js      # ✨ Universal database adapter
+│   │   ├── 🗄️ mysqlDB.js             # 🐬 MySQL database handler with Query Builder
+│   │   ├── 🔥 firebaseDB.js          # 🔥 Firebase Realtime/Firestore handler
+│   │   └── 🔧 databaseAdapter.js      # ✨ Universal database adapter (MySQL/Firebase/Hybrid)
 │   │
 │   ├── 📂 com/                        # 🌐 Communication Modules  
-│   │   ├── 🔌 serialCommunicator.js   # 📡 Arduino/ESP32/Device communication
-│   │   └── 🌐 webSocketCommunicator.js # 💬 WebSocket server implementation
+│   │   ├── 🔌 serialCommunicator.js   # 📡 Hardware communication with auto-detection
+│   │   └── 🌐 webSocketCommunicator.js # 💬 Real-time WebSocket server with broadcasting
 │   │
-│   └── 📂 alert/                      # 🚨 Alert Management
-│       ├── 📢 alertManager.js         # 🔔 Alert system management
-│       └── 📋 index.js               # 📤 Alert module exports
+│   ├── 📂 alert/                      # 🚨 Alert & Logging System
+│   │   ├── 📢 alertManager.js         # 🎨 Colorful console alert system
+│   │   └── 📋 index.js               # 📤 Alert module exports
+│   │
+│   └── 📂 doc/                        # 📚 Library Documentation
+│       ├── 📖 DATABASE_DOCUMENTATION.md   # 💾 Database library usage guide
+│       ├── 📖 FIREBASE_DOCUMENTATION.md   # 🔥 Firebase integration guide
+│       ├── 📖 SERIAL_DOCUMENTATION.md     # 🔌 Serial communication guide
+│       └── 📖 WEBSOCKET_DOCUMENTATION.md  # 🌐 WebSocket server guide
 │
 ├── 📂 App/Http/Controllers/           # 🎮 HTTP Controllers
 │   ├── 🔐 authController.js          # 👤 User authentication & JWT handling
@@ -195,9 +203,18 @@ npm run test             # Run tests
 npm run switch-db <type> # Switch between mysql/firebase
 ```
 
+## 📚 **Library Documentation**
+
+The framework includes comprehensive documentation for each core library in `lib/doc/`:
+
+- **`DATABASE_DOCUMENTATION.md`** - Complete guide for MySQL and Firebase database operations
+- **`FIREBASE_DOCUMENTATION.md`** - Firebase-specific integration and configuration
+- **`SERIAL_DOCUMENTATION.md`** - Hardware communication setup and troubleshooting
+- **`WEBSOCKET_DOCUMENTATION.md`** - Real-time communication implementation guide
+
 ## 💾 **Database Support**
 
-The framework supports both MySQL and Firebase with a unified interface:
+The framework supports both MySQL and Firebase with a unified interface through the `databaseAdapter.js`:
 
 ### **MySQL Setup**
 ```env
@@ -247,6 +264,13 @@ Electron main-renderer communication:
 - Real-time event broadcasting
 - Database operation bridging
 - Hardware status updates
+
+### **Alert System**
+Colorful console logging and alert management:
+- Color-coded console outputs for better debugging
+- Structured logging with different severity levels
+- Alert management for system events
+- Integration with all core modules for status reporting
 
 ## 🔧 **Configuration**
 
@@ -360,15 +384,17 @@ CMD ["npm", "start"]
 
 ### ✅ **Completed Features**
 - [x] Modular architecture with 6 core modules
-- [x] Dual database support (MySQL/Firebase)
+- [x] Dual database support (MySQL/Firebase) with universal adapter
 - [x] React frontend with Material-UI components
 - [x] Electron desktop application
-- [x] WebSocket real-time communication
-- [x] Serial communication with auto-detection
-- [x] JWT authentication system
-- [x] Development tools (hot reloading, linting)
-- [x] Database switching utility
-- [x] Alert management system
+- [x] WebSocket real-time communication with broadcasting
+- [x] Serial communication with auto-detection and reconnection
+- [x] JWT authentication system with bcrypt hashing
+- [x] Development tools (hot reloading, linting, testing)
+- [x] Database switching utility (`npm run switch-db`)
+- [x] Colorful alert/logging system with structured output
+- [x] Comprehensive library documentation in `/lib/doc/`
+- [x] Security features (CORS, rate limiting, encryption)
 
 ### 🚧 **In Progress / TODO**
 - [ ] Frontend WebSocket integration completion
