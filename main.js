@@ -17,6 +17,7 @@ class Application {
         this.apiServer = null;
         this.serialManager = null;
         this.ipcManager = null;
+        this.websocketManager = null;
     }
 
     async initialize() {
@@ -39,6 +40,7 @@ class Application {
                 this.windowManager.getMainWindow()
             );
             await this.serialManager.initialize();
+            
             // Initialize WebSocket manager
             this.websocketManager = new WebsocketManager(
                 this.databaseManager.getDatabase(),

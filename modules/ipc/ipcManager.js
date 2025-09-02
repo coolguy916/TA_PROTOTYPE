@@ -1,16 +1,25 @@
 // modules/ipc/ipcManager.js
 const { ipcMain } = require('electron');
+const alert = require('../../lib/alert');
 
 class IPCManager {
     constructor(database, serialManager) {
         this.database = database;
         this.serialManager = serialManager;
+        this.databaseAdapter = null; // NEW: Enhanced database adapter support
     }
 
     setupHandlers() {
+        // NEW: Check if database has enhanced adapter support
+        if (this.database && typeof this.database.getDatabaseAdapter === 'function') {
+            this.databaseAdapter = this.database.getDatabaseAdapter();
+            alert.system.config('IPC', 'Enhanced database adapter mode enabled');
+        }
+
         this.setupDatabaseHandlers();
         this.setupSerialHandlers();
-        console.log('IPC handlers setup complete');
+        this.setupEnhancedHandlers(); // NEW: Enhanced adapter handlers
+        alert.system.ready('IPC Manager - All handlers configured');
     }
 
     setupDatabaseHandlers() {
@@ -75,7 +84,7 @@ class IPCManager {
                 const result = await this.database.getDataByFilters(table, filters, options);
                 return { success: true, data: result };
             } catch (err) {
-                console.error("Error in get-data-by-filters handler:", err);
+                alert.error('IPC', 'get-data-by-filters handler error', err);
                 return { success: false, error: err.message };
             }
         });
@@ -160,6 +169,99 @@ class IPCManager {
                 } else {
                     return { success: false, error: 'Serial manager not initialized' };
                 }
+            } catch (err) {
+                return { success: false, error: err.message };
+            }
+        });
+    }
+
+    // NEW: Enhanced database adapter handlers
+    setupEnhancedHandlers() {
+        if (!this.databaseAdapter) return;
+
+        // Database health check
+        ipcMain.handle('db-health-check', async () => {
+            try {
+                const health = await this.databaseAdapter.healthCheck();
+                return { success: true, data: health };
+            } catch (err) {
+                return { success: false, error: err.message };
+            }
+        });
+
+        // Database configuration info
+        ipcMain.handle('db-get-config', async () => {
+            try {
+                const config = this.databaseAdapter.getConfig();
+                return { success: true, data: config };
+            } catch (err) {
+                return { success: false, error: err.message };
+            }
+        });
+
+        // Real-time subscription (Firestore only)
+        ipcMain.handle('db-subscribe', async (event, tableName, filters = {}) => {
+            try {
+                const subscription = this.databaseAdapter.subscribe(tableName, (data) => {
+                    event.sender.send('db-subscription-data', { 
+                        tableName, 
+                        data, 
+                        subscriptionId: subscription.subscriptionId 
+                    });
+                }, filters);
+                
+                return { 
+                    success: true, 
+                    subscriptionId: subscription.subscriptionId 
+                };
+            } catch (err) {
+                return { success: false, error: err.message };
+            }
+        });
+
+        // Unsubscribe from real-time updates
+        ipcMain.handle('db-unsubscribe', async (event, subscriptionId) => {
+            try {
+                const result = this.databaseAdapter.unsubscribe(subscriptionId);
+                return { success: result, message: result ? 'Unsubscribed' : 'Subscription not found' };
+            } catch (err) {
+                return { success: false, error: err.message };
+            }
+        });
+
+        // Raw query execution (MySQL only)
+        ipcMain.handle('db-query', async (event, sql, params = []) => {
+            try {
+                const result = await this.databaseAdapter.query(sql, params);
+                return { success: true, data: result };
+            } catch (err) {
+                return { success: false, error: err.message };
+            }
+        });
+
+        // Transaction support
+        ipcMain.handle('db-transaction', async (event, operations) => {
+            try {
+                const result = await this.databaseAdapter.transaction(async (db) => {
+                    const results = [];
+                    for (const op of operations) {
+                        switch (op.type) {
+                            case 'insert':
+                                results.push(await db.postData(op.table, op.data));
+                                break;
+                            case 'update':
+                                results.push(await db.updateData(op.table, op.data, op.where, op.params));
+                                break;
+                            case 'delete':
+                                results.push(await db.deleteData(op.table, op.where, op.params));
+                                break;
+                            default:
+                                throw new Error(`Unknown operation type: ${op.type}`);
+                        }
+                    }
+                    return results;
+                });
+                return { success: true, data: result };
             } catch (err) {
                 return { success: false, error: err.message };
             }

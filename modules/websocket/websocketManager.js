@@ -1,4 +1,5 @@
 const WebSocketHandler = require('../../lib/com/webSocketCommunicator');
+const alert = require('../../lib/alert');
 
 class WebsocketManager {
     constructor(database, mainWindow) {
@@ -6,6 +7,7 @@ class WebsocketManager {
         this.mainWindow = mainWindow;
         this.websocketHandler = null;
         this.config = this.getWebsocketConfig();
+        this.databaseAdapter = null; // NEW: Enhanced database adapter support
     }
 
     getWebsocketConfig() {
@@ -29,20 +31,29 @@ class WebsocketManager {
 
     async initialize() {
         try {
+            // NEW: Check if database has enhanced adapter support
+            if (this.database && typeof this.database.getDatabaseAdapter === 'function') {
+                this.databaseAdapter = this.database.getDatabaseAdapter();
+                alert.system.config('WebSocket', 'Enhanced database adapter mode enabled');
+            }
+
             this.websocketHandler = new WebSocketHandler(
                 this.config,
                 this.database,
                 this.mainWindow
             );
 
-            // Wait for window to load before starting the server
+            // In server mode (no window), start immediately
+            // In Electron mode, wait for window to load
+            const delay = this.mainWindow ? 2000 : 500;
             setTimeout(async () => {
                 await this.websocketHandler.start();
-            }, 2000);
+            }, delay);
 
-            console.log('WebSocket server manager initialized');
+            const mode = this.mainWindow ? 'Electron' : 'Server';
+            alert.system.ready(`WebSocket Manager (${mode} mode)`);
         } catch (error) {
-            console.error('WebSocket server manager initialization failed:', error);
+            alert.error('WEBSOCKET', 'Manager initialization failed', error);
             throw error;
         }
     }
@@ -62,6 +73,25 @@ class WebsocketManager {
             return this.websocketHandler.broadcastToAll(message);
         }
         return 0;
+    }
+
+    // NEW: Enhanced methods for database adapter integration
+    broadcastToRoom(roomId, message) {
+        if (this.websocketHandler && this.websocketHandler.broadcastToRoom) {
+            return this.websocketHandler.broadcastToRoom(roomId, message);
+        }
+        return 0;
+    }
+
+    getDatabaseAdapter() {
+        return this.databaseAdapter;
+    }
+
+    async getDatabaseHealth() {
+        if (this.databaseAdapter && this.databaseAdapter.healthCheck) {
+            return await this.databaseAdapter.healthCheck();
+        }
+        return { status: 'unknown', message: 'Enhanced adapter not available' };
     }
 }
 

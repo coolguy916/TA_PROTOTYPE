@@ -1,22 +1,29 @@
-# 🌊 Alprog Boncos - For Monitoring System Framework - with Complete Backend System
+# Monitor Framework 2.0 - Enhanced Universal Edition
 
-> **Transform your industrial monitoring dreams into reality!** This isn't just another backend framework - it's your gateway to building robust, real-time monitoring systems that adapt, scale, and never miss a beat.
+**A next-generation modular, real-time monitoring and control framework** that supports both web and desktop deployment. Built with React frontend and Node.js backend, featuring enhanced WebSocket real-time communication, universal database support (MySQL/Firestore/Hybrid), and a highly modular architecture for easy integration into any project.
+
+> **Transform your industrial monitoring dreams into reality!** This isn't just another backend framework - it's your gateway to building robust, real-time monitoring systems that adapt, scale, and never miss a beat. Now with **enhanced database adapter**, **universal React frontend**, and **hybrid database sync** capabilities!
 
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)]()
 [![MySQL](https://img.shields.io/badge/MySQL-8.0+-blue.svg)]()
-[![Firebase](https://img.shields.io/badge/Firebase-Realtime-orange.svg)]()
-[![WebSocket](https://img.shields.io/badge/WebSocket-Real--time-purple.svg)]()
+[![Firebase](https://img.shields.io/badge/Firebase-Firestore-orange.svg)]()
+[![React](https://img.shields.io/badge/React-Universal-61dafb.svg)]()
+[![WebSocket](https://img.shields.io/badge/WebSocket-Enhanced-purple.svg)]()
 [![Electron](https://img.shields.io/badge/Electron-Desktop-lightblue.svg)]()
+[![Database](https://img.shields.io/badge/Database-Hybrid%20Sync-red.svg)]()
 
 ## 🚀 What Makes This Framework Special?
 
 Imagine having a monitoring system that's as flexible as a Swiss Army knife and as reliable as a lighthouse. This framework brings together the best of multiple worlds:
 
-- **🔄 Dual Database Support**: Switch between MySQL and Firebase with a single command
-- **⚡ Real-time Everything**: WebSocket communications that keep your data flowing
+- **🔄 Universal Database Support**: MySQL, Firestore, or hybrid mode with automatic sync
+- **⚡ Enhanced Real-time Everything**: WebSocket communications with database sync and room-based broadcasting
+- **🌐 Universal Frontend**: React-powered UI that works as web app AND desktop application
 - **🔗 Smart Serial Communication**: Auto-reconnecting, self-healing device connections
 - **🛡️ Fort Knox Security**: Built-in encryption for sensitive data
-- **🖥️ Desktop Ready**: Electron-powered interface for professional deployment
+- **🖥️ Desktop Ready**: Electron-powered interface with React frontend support
+- **🔧 Enhanced Database Adapter**: Unified interface across all database types with health monitoring
+- **📡 Real-time Subscriptions**: Live data updates with Firestore real-time listeners
 
 ## 🏗️ Architecture That Actually Makes Sense
 
@@ -66,11 +73,12 @@ flow-meter-monitoring/
 ├── 📂 lib/                            # 🏗️ Core Framework Libraries
 │   ├── 📂 db/                         # 💾 Database Abstraction Layer
 │   │   ├── 🗄️ mysqlDB.js             # 🐬 MySQL database handler + Query Builder
-│   │   └── 🔥 firebaseDB.js          # 🔥 Firebase Realtime DB handler + Query Builder
+│   │   ├── 🔥 firebaseDB.js          # 🔥 Firebase Realtime + Firestore handler + Query Builder
+│   │   └── 🔧 databaseAdapter.js      # ✨ NEW! Universal database adapter (MySQL/Firestore/Hybrid)
 │   │
 │   └── 📂 com/                        # 🌐 Communication Modules  
 │       ├── 🔌 serialCommunicator.js   # 📡 Arduino/ESP32/Device communication
-│       └── 🌐 webSocketHandler.js     # 💬 Real-time WebSocket server
+│       └── 🌐 webSocketCommunicator.js # 💬 Enhanced WebSocket server with database sync
 │
 ├── 📂 controller/                     # 🎮 Business Logic Controllers
 │   └── 📂 app/                        # 📱 Application-specific controllers
@@ -88,7 +96,111 @@ flow-meter-monitoring/
 ├── 📂 scripts/                        # 🔧 Utility Scripts
 │   └── 🔄 switch-db.js               # 🎛️ Database switching utility
 │
+├── 📂 frontend/                       # 🌐 React Frontend (NEW!)
+│   ├── 📦 package.json               # 📋 Frontend dependencies
+│   ├── 📂 src/                        # ⚛️ React source files
+│   ├── 📂 public/                     # 🌍 Public web assets
+│   └── 📂 build/                      # 📦 Production build output
+│
 └── 📂 node_modules/                   # 📦 Dependencies (auto-generated)
+```
+
+## ✨ **NEW! Enhanced Features Overview**
+
+### 🔧 **Enhanced Database Adapter** 
+The new universal database adapter (`lib/db/databaseAdapter.js`) provides a unified interface across all database types:
+
+```javascript
+// Single interface for all database types!
+const adapter = new DatabaseAdapter();
+await adapter.initialize(); // Auto-configures based on environment
+
+// Works the same regardless of MySQL, Firestore, or Hybrid mode
+const data = await adapter.postData('sensors', sensorData);
+const readings = await adapter.getDataByFilters('sensors', { active: true });
+
+// NEW: Real-time subscriptions (Firestore only)
+const subscription = adapter.subscribe('sensors', (data) => {
+    console.log('Real-time update:', data);
+});
+
+// NEW: Health monitoring
+const health = await adapter.healthCheck();
+console.log('Database status:', health);
+```
+
+**Key Features:**
+- **🔄 Hybrid Mode**: Use MySQL and Firestore simultaneously with automatic sync
+- **🏥 Health Monitoring**: Real-time database health checks and status reporting
+- **📡 Real-time Subscriptions**: Live data updates with Firestore listeners
+- **🔀 Transaction Support**: Cross-database transaction handling
+- **⚖️ Load Balancing**: Automatic failover between primary and secondary databases
+
+### 🌐 **Universal React Frontend**
+The framework now supports both traditional HTML and modern React frontends:
+
+```javascript
+// Environment Configuration
+USE_REACT_FRONTEND=true          # Enable React frontend
+REACT_DEV_URL=http://localhost:3000  # Development server URL
+
+// WindowManager automatically detects and loads appropriate frontend
+const windowManager = new WindowManager();
+windowManager.createWindow(); // Loads React or HTML based on config
+```
+
+**Frontend Features:**
+- **🖥️ Desktop & Web**: Same React app works as Electron desktop app and web browser
+- **🔄 Hot Switching**: Toggle between React and HTML frontends at runtime
+- **📡 WebSocket Integration**: Built-in WebSocket client with auto-reconnection
+- **🎯 Electron API**: Full access to backend via enhanced preload bridge
+
+### 🌐 **Enhanced WebSocket Server**
+Upgraded WebSocket server with database synchronization capabilities:
+
+```javascript
+// NEW: Database sync operations via WebSocket
+ws.send(JSON.stringify({
+    type: 'db_create',
+    table: 'sensors',
+    data: { temperature: 25.5, timestamp: new Date() }
+}));
+
+// NEW: Real-time subscriptions
+ws.send(JSON.stringify({
+    type: 'db_subscribe',
+    table: 'sensors',
+    filters: { active: true }
+}));
+
+// NEW: Room-based broadcasting
+wsHandler.broadcastToRoom('sensor-room-1', {
+    type: 'sensor_update',
+    data: sensorData
+});
+```
+
+**WebSocket Features:**
+- **💾 Database Sync**: Direct database operations through WebSocket messages
+- **🏠 Room Support**: Join/leave rooms for targeted message broadcasting
+- **📡 Real-time Subscriptions**: Subscribe to database changes via WebSocket
+- **🔄 Auto-reconnection**: Client-side automatic reconnection with exponential backoff
+
+### 🔧 **Enhanced Module Integration**
+All modules now integrate seamlessly with the enhanced database adapter:
+
+```javascript
+// Modules automatically detect and use enhanced features
+this.websocketManager = new WebsocketManager(database, mainWindow);
+// ✅ Automatically uses enhanced adapter if available
+// ✅ Provides room-based broadcasting
+// ✅ Supports database health monitoring
+
+this.ipcManager = new IPCManager(database, serialManager);  
+// ✅ Automatically adds enhanced IPC handlers
+// ✅ Supports real-time subscriptions
+// ✅ Provides transaction support
+// ✅ Includes health monitoring endpoints
 ```
 
 ## 🎯 **File Purpose Guide - Know What You're Editing**

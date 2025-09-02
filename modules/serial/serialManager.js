@@ -1,5 +1,6 @@
 // modules/serial/serialManager.js
 const SerialCommunicator = require('../../lib/com/serialCommunicator');
+const alert = require('../../lib/alert');
 
 class SerialManager {
     constructor(database, mainWindow) {
@@ -29,14 +30,17 @@ class SerialManager {
                 this.mainWindow
             );
 
-            // Wait for window to load before connecting
+            // In server mode (no window), connect immediately
+            // In Electron mode, wait for window to load
+            const delay = this.mainWindow ? 2000 : 500;
             setTimeout(() => {
                 this.serialCommunicator.connect();
-            }, 2000);
+            }, delay);
 
-            console.log('Serial manager initialized');
+            const mode = this.mainWindow ? 'Electron' : 'Server';
+            alert.system.ready(`Serial Manager (${mode} mode)`);
         } catch (error) {
-            console.error('Serial manager initialization failed:', error);
+            alert.error('SERIAL', 'Manager initialization failed', error);
             throw error;
         }
     }

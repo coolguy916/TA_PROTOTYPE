@@ -26,6 +26,27 @@ async function insertSensorData(req, res) {
     }
 };
 
+async function insertPh(req, res) {
+    const { user_id, device_id, ph_reading } = req.body;
+
+    try {
+        dbInstance.validate(req.body, {
+            user_id: ['required'],
+            device_id: ['required']
+        });
+
+        const result = await dbInstance.postData('ph_data', {
+            user_id,
+            device_id,
+            ph_reading: dbInstance.encrypt(String(ph_reading)),
+        });
+
+        res.json({ success: true, id: result.insertId, message: "Data received via API and saved." });
+    } catch (err) {
+        res.status(400).json({ success: false, error: err.message });
+    }
+};
+
 module.exports = {
     initializeController,
     insertSensorData

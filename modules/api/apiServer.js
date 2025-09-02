@@ -2,6 +2,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const alert = require('../../lib/alert');
 
 // Controllers
 const dbController = require('../../App/Http/Controllers/databaseController');
@@ -63,7 +64,7 @@ class APIServer {
 
     start() {
         this.server = this.app.listen(this.port, () => {
-            console.log(`API server listening at http://localhost:${this.port}`);
+            alert.api.serverStarted(this.port);
         });
     }
 
